@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='scoringhandlerutils',
-      version='0.0.1',
+      version='0.0.2',
       description='Utils functions for scoring handler',
       url='https://github.com/bukosabino/scoring-handler-utils',
       author='Dario Lopez Padial (Bukosabino)',
