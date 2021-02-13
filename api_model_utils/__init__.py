@@ -1,6 +1,6 @@
-from api_model.app import (ManagerProfile, ManagerProfilePyinstrument,
+from api_model_utils.app import (ManagerProfile, ManagerProfilePyinstrument,
                            ManagerProfileYappi)
-from api_model.model import TemplateModel
+from api_model_utils.model import TemplateModel
 
 __all__ = [
     "ManagerProfile",
