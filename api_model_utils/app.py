@@ -43,14 +43,18 @@ class ManagerProfilePyinstrument(ManagerProfile):
         self.profiler.start()
         return nullcontext()
 
-    def stop_and_write(self, path_profile, is_docker: bool):
+    def stop_and_write(self, path_profile: str, is_docker: bool, sync: bool):
         self.profiler.stop()
+
+        filename = (
+            "pyinstrument_profile_sync.html"
+            if sync
+            else "pyinstrument_profile_async.html"
+        )
 
         if not is_docker:
             output_html = self.profiler.output_html()
-            self._write_output_file(
-                path_profile, output_html, filename="pyinstrument_profile_async.html"
-            )
+            self._write_output_file(path_profile, output_html, filename=filename)
 
         print(self.profiler.output_text(unicode=True, color=True))
 
@@ -67,12 +71,11 @@ class ManagerProfileYappi(ManagerProfile):
         context_manager = yappi.run()
         return context_manager
 
-    def stop_and_write(self, path_profile, is_docker: bool):
+    def stop_and_write(self, path_profile, is_docker: bool, sync: bool):
         stats = yappi.get_func_stats()
+        filename = "yappi_profile_sync.html" if sync else "yappi_profile_async.html"
         if not is_docker:
-            self._write_output_file(
-                path_profile, stats, filename="yappi_profile_async.txt"
-            )
+            self._write_output_file(path_profile, stats, filename=filename)
         stats.print_all()
 
     def _write_output_file(self, path_profile, stats, filename):
