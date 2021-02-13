@@ -2,13 +2,13 @@ init:
 	pip install -r requirements.txt
 
 isort:
-	isort --check-only api_model/*
+	isort --check-only api_model_utils/*
 
 format: isort
-	black api_model
+	black api_model_utils
 
 isort-fix:
-	isort api_model/*
+	isort api_model_utils/*
 
 lint: isort
-	prospector api_model/
+	prospector api_model_utils/
