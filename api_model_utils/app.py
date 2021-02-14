@@ -64,19 +64,24 @@ class ManagerProfilePyinstrument(ManagerProfile):
 
 class ManagerProfileYappi(ManagerProfile):
     @staticmethod
-    def start():
+    def start(sync: bool):
         yappi.set_clock_type("WALL")
-        context_manager = yappi.run()
+        if sync:
+            yappi.start()
+            context_manager = nullcontext()
+        else:
+            context_manager = yappi.run()
         return context_manager
 
     def stop_and_write(self, path_profile: str, is_docker: bool, sync: bool):
         stats = yappi.get_func_stats()
-        filename = "yappi_profile_sync.html" if sync else "yappi_profile_async.html"
+        mode = "sync" if sync else "async"
+        filename = f"yappi_profile_{mode}.txt"
         if not is_docker:
             self._write_output_file(path_profile, stats, filename=filename)
         stats.print_all()
 
-    def _write_output_file(self, path_profile: str, stats, filename: str):
+    def _write_output_file(self, path_profile: str, stats: yappi.YFuncStats, filename: str):
         output_txt_path = self._prepare_output_path(path_profile, filename)
         with open(output_txt_path, "w") as file:
             stats.print_all(out=file)
