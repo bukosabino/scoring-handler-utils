@@ -7,11 +7,11 @@ from pyinstrument import Profiler
 
 class ManagerProfile:
     @classmethod
-    def factory(cls, type_input_data: str):
+    def factory(cls, type_input_data: str, sync: bool):
         """Apply factory pattern design"""
         switch_case = {
-            "pyinstrument": ManagerProfilePyinstrument(),
-            "yappi": ManagerProfileYappi(),
+            "pyinstrument": ManagerProfilePyinstrument(sync),
+            "yappi": ManagerProfileYappi(sync),
         }
         msg = (
             f"{cls.__class__.__qualname__}: 'type_input_data' is not a "
@@ -36,20 +36,18 @@ class ManagerProfile:
 
 
 class ManagerProfilePyinstrument(ManagerProfile):
-    def __init__(self):
+    def __init__(self, sync: bool):
+        self.sync = sync
         self.profiler = Profiler()
 
     def start(self):
         self.profiler.start()
         return nullcontext()
 
-    def stop_and_write(self, path_profile: str, is_docker: bool, sync: bool):
+    def stop_and_write(self, path_profile: str, is_docker: bool, api: bool):
         self.profiler.stop()
-        filename = (
-            "pyinstrument_profile_sync.html"
-            if sync
-            else "pyinstrument_profile_async.html"
-        )
+        mode = "sync" if self.sync else "async"
+        filename = f"pyinstrument_profile_{mode}_{api}.html"
         if not is_docker:
             output_html = self.profiler.output_html()
             self._write_output_file(path_profile, output_html, filename=filename)
@@ -63,25 +61,29 @@ class ManagerProfilePyinstrument(ManagerProfile):
 
 
 class ManagerProfileYappi(ManagerProfile):
-    @staticmethod
-    def start(sync: bool):
+    def __init__(self, sync: bool):
+        self.sync = sync
+
+    def start(self):
         yappi.set_clock_type("WALL")
-        if sync:
+        if self.sync:
             yappi.start()
             context_manager = nullcontext()
         else:
             context_manager = yappi.run()
         return context_manager
 
-    def stop_and_write(self, path_profile: str, is_docker: bool, sync: bool):
+    def stop_and_write(self, path_profile: str, is_docker: bool, api: bool):
         stats = yappi.get_func_stats()
-        mode = "sync" if sync else "async"
-        filename = f"yappi_profile_{mode}.txt"
+        mode = "sync" if self.sync else "async"
+        filename = f"yappi_profile_{mode}_{api}.txt"
         if not is_docker:
             self._write_output_file(path_profile, stats, filename=filename)
         stats.print_all()
 
-    def _write_output_file(self, path_profile: str, stats: yappi.YFuncStats, filename: str):
+    def _write_output_file(
+        self, path_profile: str, stats: yappi.YFuncStats, filename: str
+    ):
         output_txt_path = self._prepare_output_path(path_profile, filename)
         with open(output_txt_path, "w") as file:
             stats.print_all(out=file)
