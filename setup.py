@@ -8,5 +8,6 @@ setup(name='scoringhandlerutils',
       author_email='bukosabino@gmail.com',
       license='The MIT License (MIT)',
       packages=['api_model_utils'],
+      install_requires=['scikit-learn', 'pyinstrument', 'yappi'],
       zip_safe=False
 )
