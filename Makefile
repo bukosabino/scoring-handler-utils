@@ -2,13 +2,13 @@ init:
 	pip install -r requirements.txt
 
 isort:
-	isort --check-only api_model_utils/*
+	isort --check-only scoring_handler_utils/*
 
 format: isort
-	black api_model_utils
+	black scoring_handler_utils
 
 isort-fix:
-	isort api_model_utils/*
+	isort scoring_handler_utils/*
 
 lint: isort
-	prospector api_model_utils/
+	prospector scoring_handler_utils/
