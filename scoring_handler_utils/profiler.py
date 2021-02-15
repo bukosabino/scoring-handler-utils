@@ -44,13 +44,18 @@ class ManagerProfilePyinstrument(ManagerProfile):
         self.profiler.start()
         return nullcontext()
 
-    def stop_and_write(self, path_profile: str, is_docker: bool, api: str):
+    def stop_and_write(
+        self, path_profile: str, is_docker: bool, api: str, render_browser: bool = False
+    ):
         self.profiler.stop()
         mode = "sync" if self.sync else "async"
         filename = f"pyinstrument_profile_{mode}_{api}.html"
         if not is_docker:
             output_html = self.profiler.output_html()
             self._write_output_file(path_profile, output_html, filename=filename)
+
+        if render_browser:
+            self.profiler.open_in_browser()
 
         print(self.profiler.output_text(unicode=True, color=True))
 
